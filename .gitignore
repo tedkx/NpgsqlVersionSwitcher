@@ -1,0 +1,6 @@
+*.suo
+/nuget/*.nupkg
+/nuget/*.txt
+/NpgsqlVersionSwitcher/bin
+/NpgsqlVersionSwitcher/obj
+/packages

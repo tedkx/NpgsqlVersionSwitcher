@@ -1,0 +1,141 @@
+﻿<Window x:Class="NpgsqlVersionSwitcher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:b="clr-namespace:NpgsqlVersionSwitcher"
+        Title="MainWindow" Height="143.732" Width="525" Loaded="Window_Loaded" AllowsTransparency="True"
+        WindowStyle="None">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/NpgsqlVersionSwitcher;component/Resources.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Window.Style>
+        <Style>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=ShowBottomPart}" Value="True">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Height" Duration="0:0:0.4" To="320"> 
+                                    <DoubleAnimation.EasingFunction>
+                                        <CircleEase EasingMode="EaseOut" />
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Height" Duration="0:0:0.4" To="143">
+                                    <DoubleAnimation.EasingFunction>
+                                        <CircleEase EasingMode="EaseOut" />
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Style>
+    <Grid MouseDown="Header_MouseDown">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" x:Name="Header" />
+            <RowDefinition Height="1" x:Name="Border"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="90" />
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Grid.Column="0" Content="Npgsql Version Switcher" VerticalAlignment="Center" FontFamily="Arial" FontSize="16" FontWeight="Bold" Foreground="#FF213A71"
+               Margin="10,10,0,10"/>
+        <Image Grid.Row="0" Grid.Column="1" Source="Resources/cleverdev.png" HorizontalAlignment="Right" Margin="0,10,10,10" />
+        <Border BorderBrush="#FF213A71" BorderThickness="0 0 0 1" Grid.Row="1" Grid.ColumnSpan="2" />
+        <Grid Grid.Row="2" Grid.ColumnSpan="2" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="90" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="30" />
+                <ColumnDefinition Width="30" />
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Row="0" Grid.Column="0" Content="Version" VerticalAlignment="Center" />
+            <ComboBox VerticalAlignment="Center" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Versions}" DisplayMemberPath="Text" Margin="0, 0, 10, 0" Text="-- Please Wait --"
+                  SelectedValuePath="Value" SelectedValue="{Binding Path=SelectedVersion.Value, Mode=TwoWay}" Style="{StaticResource Stretched}" IsEnabled="{Binding Path=EnableComboBox}" />
+            <Button HorizontalAlignment="Stretch" VerticalAlignment="Center" Width="22" Grid.Row="0" Grid.Column="3" Command="{Binding RefreshPackagesCommand}"
+                    ToolTip="Refresh package versions from NuGet">
+                <StackPanel>
+                    <Image Source="Resources/icon_refresh.png" x:Name="RefreshImage">
+                        <Image.RenderTransform>
+                            <RotateTransform Angle="0" CenterX="{Binding Path=RotateCenterX}" CenterY="{Binding Path=RotateCenterX}" />
+                        </Image.RenderTransform>
+                        <Image.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=IsRefreshing}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" From="0" To="360" 
+                                                                     Storyboard.Target="{Binding ElementName=RefreshImage}" RepeatBehavior="Forever"
+                                                                     Duration="0:0:1" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" From="0" To="0" 
+                                                                     Storyboard.Target="{Binding ElementName=RefreshImage}"
+                                                                     Duration="0:0:0" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
+                </StackPanel>
+            </Button>
+            <Border BorderBrush="#FFCCCCCC" BorderThickness="0 0 0 1" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,8,0,0" />
+            <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" HorizontalAlignment="Stretch" Name="ProgressGrid" VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Content="Progress"/>
+                <Label Grid.Row="0" Grid.Column="1"  HorizontalAlignment="Left" Content="{Binding Path=Output, UpdateSourceTrigger=PropertyChanged}"/>
+                <ProgressBar Height="30" Grid.Row="1" Grid.ColumnSpan="2" Minimum="{Binding Path=MinProgress}" Maximum="{Binding Path=MaxProgress}" 
+                         Value="{Binding Path=Progress, UpdateSourceTrigger=PropertyChanged}" Margin="0" />
+                <Border Grid.Row="2" Grid.ColumnSpan="2" Margin="0, 10, 0 0" BorderThickness="1" BorderBrush="#FF999999" CornerRadius="5,5,5,5">
+                    <TextBox Background="#FFE6E6E6" FontFamily="Consolas" Text="{Binding Path=Error, UpdateSourceTrigger=PropertyChanged}" Padding="10" IsReadOnly="True" TextWrapping="Wrap"
+                             VerticalScrollBarVisibility="Auto" />
+                </Border>
+            </Grid>
+            
+            
+            <Button Content="Close" HorizontalAlignment="Right" Width="60" Grid.Row="3" Grid.ColumnSpan="2" Height="20" VerticalAlignment="Center" Margin="0, 10, 0, 0"
+                    Grid.Column="2" Command="{Binding CloseProgramCommand}"/>
+            <Button Content="Execute" HorizontalAlignment="Right" Grid.Row="3" Grid.Column="1" Margin="0,10,10,0" Height="20" VerticalAlignment="Center" Command="{Binding ChangeVersionCommand}"
+                    ToolTip="Switches the Npgsql package version" Width="60"/>
+        </Grid>
+    </Grid>
+
+</Window>
