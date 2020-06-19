@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
+using System.Net;
 
 namespace NpgsqlVersionSwitcher
 {
@@ -162,6 +163,7 @@ namespace NpgsqlVersionSwitcher
         public void RefreshPackages()
         {
             SetUIStatus(isBusy: true, showBottomPart: false, isRefreshing: true);
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
             new System.Threading.Thread(() =>
             {
                 var versions = (from p in PackageRepositoryFactory.Default.CreateRepository("http://packages.nuget.org/api/v1").FindPackagesById("Npgsql")
